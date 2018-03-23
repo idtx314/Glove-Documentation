@@ -1,0 +1,21 @@
+scipy.interpolate.interp1d
+scipy.interpolate.univariatespline (supports analytic derivatives)(can use smoothing splines)
+    spline interpolation kits
+
+
+timestamps handled by rosserial
+
+transferring data is assumed to be characters in serial
+unions are a good tool for translating data so you don't lose info
+
+uint come from stddtypes.h
+
+there's a distinction between rosserial serialization and intra node serialization on a given computer.
+
+Aim for the arrow and the cereal box
+
+remember that this needs to include a portfolio post by the end of this
+
+Idea: Using motors to turn a screw as an adjustment mechanism.
+
+What if I let the users adjust the hidden electromagnets and then tried to find them?

@@ -1,0 +1,36 @@
+Prefix a string with b to switch it to binary before sending?
+
+Wait for the connection to establish before sending over serial, or messages will be lost.
+
+For the IDE monitor, setting the box at the bottom determines what control characters are put at the end of a line.
+
+Made Hello_world_line.ino, a serial echo script which may have commands more useful for my purposes if I format lines. Takeaway, sending should be easy if I just have to serial. So try writing the python script.
+
+While running the "Hello_world_line.ino" script, I put the following lines into Ipython and got the echoed response on the arduino serial monitor.
+In [1]: import serial
+
+In [2]: ser = serial.Serial('/dev/ttyUSB0',9600)
+
+In [3]: ser.write("Hi!")
+Out[3]: 3
+
+In [4]: ser.write("Can you hear me?")
+Out[4]: 16
+
+In [5]:
+
+
+ser = serial.Serial('/dev/ttyACM0', 9600, timeout=0.050)
+
+The property Serial.in_waiting returns the "the number of bytes in the receive buffer".
+
+ser.in_waiting and ser.inWaiting() both return the number of bytes in the inbound buffer. The former is more up to date.
+
+When nothing is actively monitoringthe serial line, the transmitted data remains in queue.
+
+
+Separate send and receive buffers exist on each end of the Serial line. The sending is one way. If anything on the laptop transmits, then the arduino receives. The transmission can't be intercepted by other programs on the laptop. If you split the line it might be possible, but I'm pretty sure that's just not how it's supposed to work. So if I send from an ipython terminal, and the arduino is set to receive and echo, then another python terminal listening to the line will hear the return transmission but not the outgoing one.
+
+string.split(str, separater)
+
+The receive script is not stable indefinitely. Attempts to read are overlapping with attempts to transmit, I think.

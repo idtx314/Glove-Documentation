@@ -1,0 +1,52 @@
+The gyroscope outputs rate of rotation around the axes in degrees on a scale of +-250, 500, 1000, 2000 degrees/s set by FS_SEL = 0,1,2,3
+
+Accelerometer outputs acceleration along the axes on a scale of +- 2, 4, 8, or 16 g set by AFS_SEL = 0,1,2,3
+
+My objective is to integrate angular velocity readings from the gyro and combine them with accelerometer orientation data via a complimentary filter in order to determine a reasonable estimate of orientation at a given moment.
+I then want to display that orientation data in rviz, and display the magnetometry vector in the frame of that orientation.
+
+
+
+
+
+
+
+
+I'm currently running initMPU9250, but I'm not running the MPU9250SelfTest or any calibration that I can see.
+
+The more general/basic AHRS code runs MPU9250SelfTest, then calibrateMPU9250, then initMPU9250 during it's setup. COllected calibration data likely used in the measurement loop. Calls getAres getGres and getMres later, which is inefficient.
+
+The teensy specific program uses MPU9250SelfTest, gets the sensor resolutions with getAres getMres & getGres, then runs "accelgyrocalMPU9250" which looks like a custom calibrating function, then initMPU9250
+
+
+
+myIMU.getXres stores current resolution multiplier in myIMU.xRes
+
+So I want to
+1. run myIMU.MPU9250SelfTest(myIMU.SelfTest)
+    myIMU.SelfTest is an array containing the percentage of factor value the trim is within as a float.
+2. Run myIMU.calibrateMPU9250(myIMU.gyroBias, myIMU.accelBias);
+    myIMU.gyroBias and myIMU.accelBias are float arrays containing the Bias values to be subtracted. Oddly, the example code doesn't ever use the gyro bias, just the accel bias.
+3. Run the getXres() functions
+    xRes variables contain mode specific multipliers that convert from raw data to gravities or degrees per second or gauss
+4. Run myIMU.initMPU9250
+    Sets up the IMU for active data read
+
+5. Add the gyro angular velocities to a rolling sum to estimate the current position.
+  float pitch_gyro_delta = imu_data[0]*imu_diff;
+  float roll_gyro_delta = imu_data[1]*imu_diff;
+  //Similar for Yaw
+
+6. Estimate roll and pitch with the accelerometer. use atan2(y/z) for roll, atan2(x/z) for pitch.
+  float pitch_accel = (atan2(imu_data[4],imu_data[5]))*180.0/3.1415 - pitch_calibration;
+  float roll_accel = (atan2(imu_data[3],imu_data[5]))*180.0/3.1415 - roll_calibration;
+
+7. Add the estimates with a complementary filter
+  roll_angle = roll_accel*A + (1-A)*(roll_gyro_delta + roll_angle);
+  pitch_angle = pitch_accel*A + (1-A)*(pitch_gyro_delta + pitch_angle);
+
+8. Send the estimated roll, pitch, and yaw over serial to be picked up by the listener node, then publish
+  Serial.print(myIMU.mx); Serial.print(","); Serial.print(myIMU.my); Serial.print(","); Serial.print(myIMU.mz);
+  Serial.print(","); Serial.print(Roll); Serial.print(","); Serial.print(Pitch); Serial.print(","); Serial.print(Yaw);  Serial.print("\n");
+9. Subscribe with a processor node and publish a tf or frame message of some sort to get the data displayed in rviz.
+

@@ -1,0 +1,77 @@
+library procedure call follows the C style LibraryName.procedureName() syntax
+Procedure calls with no library come from the default collection. Some libraries seem to be included in what is presumably the standard libraries for arduino. These don't have to be installed but I can't find a list. Serial does not require an include statement to use its library, but to use sqrt() you must #include "math.h"
+There's an installer interface for grabbing libraries from Arduino's database, and ostensibly you can install manually but the functions for this don't seem to work as expected.
+
+Pull up resistors are a subject of some concern
+    pinMode(5, INPUT_PULLUP); // Enable internal pull-up resistor on pin 5
+    Enable internal pullup resistors.
+
+
+
+Baud rate for transmission to Arduino can be set in the serial monitor accessed from the arduino sketch window.
+
+Serial functions are for sending to and retreiving from the serial monitor embedded in the arduino IDE.
+
+
+Got an error attempting to install library from downloaded .zip file: file/zip does not contain a valid library.
+Installed a Sparkfun haptic motor driver from the arduino library manager that appears similar if not identical.
+Bookmarking github page for downloaded zip library. Appears to contain additional materials, might have to unzip in order to import properly.
+
+
+
+Motor Driver
+Might be able to test if this is an erm by seeing if vibration frequency changes with voltage.
+Motor Example sketch appears to work pretty much as advertised. Have begun thinking about whether I can leverage pre-built patterns for feedback or need to set manually. Neither should be that difficult.
+
+I'm using the functions from the arduino downloaded library
+HMD.begin();
+  Sets up the driver in some fashion.
+HMD.Mode(0);
+    0 is Internal trigger input mode -- Must use the GO() function to trigger playback. Pg. 35. Other modes include external trigger, PWM, and audio-to-vibe.
+HMD.MotorSelect(0x36);
+    Feedback Control register. 0x36 is ERM motor, 4x Braking, Medium loop gain, 1.365x back EMF gain. Different values in sub-registers change expected motor characteristics.
+HMD.Library(2);
+    Library select. 1-5 & 7 for ERM library A-E & F, 6 for LRA library. ERM options vary rate/overdrive voltage, rise time, brake time
+HMD.Waveform(seqRegister, waveNumber);
+    Select wave number waveNumber from the library by loading its value into the 1st + seqRegister sequence register
+HMD.go();
+    Play waveforms starting with the lowest sequence register and stopping either at the last or when there are no more to play.
+
+
+IMU.
+I2C Address 0x68 by default (can be changed with a solder jumper).
+
+I have at my disposal a sketch linked in the same comment that warned me about the logic level converter being necessary. It is for an MPU 6050 by the same manufacturer, but ostensibly will work for reverse engineering. I also have a website I found about I2C with an arduino example included. I also grabbed the datasheet and register guide, and apparently there's an arduino library I'll take that?
+
+
+
+Installed Sparkfun library via IDE interface. This library seems to be markedly different than the one I can download directly from the sparkfun product page. Much fewer headers.
+
+Have to supply HV, LV, and both grounds from same source? I.E. the arduino
+
+
+Found a converter bridge fritzer guide. I will use that to connect the IMU, then connect the IMU based on its own gettings stared guide and try to use/adapt the MPU9250 Basic Example Code
+
+IMU is outputting yaw/pitch/roll that varias based on position!
+
+Unplug the USB from the computer rather than the arduino. Less messing with the board, and the lappy will assign it to USB1 instead of USB0 otherwise.
+
+34000 baud to listen to AHRS IMU example over serial
+
+Downloaded Fritzing. Should be fun for visuals and prototyping plans
+
+
+Magnetometer
+Odd Occurrence: Was getting -1s again with test program. Running the complicated program returned good data. Running my test program then returned good data as well. Complex program performing some setup that stuck?
+AK8963, I2C address 0x0C
+Data readouts at 0x03 to 0x08
+
+Need to read the ST2 data overflow register to complete a read. Not sure why exactly but data returned is all -1 if I don't.
+
+THe magnetometer is in some senses a separate device merely included on the same breakout as the MPU. To read data requires transmitting to a different address. Its registers are marked with an H at the end in the manual, but this is not an actual part of the address.
+
+
+I2C
+    Example I found for comms with multiple devices releases the bus each time. May or may not be necessary, but it's what I'll do for now.
+
+    I don't understand pull up resistors, how exactly I should connect them, or whether I need them here. Need to ask for help.

@@ -1,0 +1,44 @@
+Scale set to 16 bit by default CNTL1.BIT
+read rate set to 8 Hz by default
+
+Magnetometer Calibration
+Magnetometers commonly have a number of imperfections that are not calibrated for by the factory. The most significant two of these are hard iron and soft iron biases.
+
+The hard iron correction is intended to center the magnetometer readings back at the origin, while the soft iron correction brings the elliptical "reading surface" closer to a proper spherical shape. Soft iron correction is most properly done by transformation matrices, but can be approximated as a footnote of the hard iron correction.
+
+Hard Iron Correction:
+    Each magnetometer axis has a bias in its reading that shifts the center of its reading surface. In addition to the bias, the instrument will also be reading the Earth's magnetic field though. To determine the bias, which is constant on the axis you take a reading on the axis, rotate the chip 180 degrees and take a reading again. The bias will be unchanged, but the Earth's field will be the negative of what it was before. By adding these figures together and taking the average the field will cancel and only the bias will remain.
+
+
+Cant just use the up to date example code, it's designed for a specific microcontroller that has its own super special wire library.
+I will cut out the mag bias function and the calibration equation and use it myself.
+
+Am I using the right read frequency?
+Should I use averaging?
+
+
+
+Did:
+1. Added a magScale global to the MPU9250.h header.
+2. Noticed a case change in the magBias global in the MPU9250.h . Decided to use lower case for now.
+3. Took a hard iron calibration function from a more advanced example program
+4. Restructured my mag read algorithm to include the calibration function and data. Cal data is collected during setup.
+5. Noted variable type discrepancy. Read data straight from registers is 16 bit integer. Scale, Bias, Calibration, Res, and the final values are all floats. My final value was an int. May or may not explain the 0 outputs I was getting. Seems unlikely really.
+6. Noted that example code is doing a conditional read at the beginning of loop. Could this be the cause of the zeros?
+7. Added myIMU. to a bunch of things. The example code I'm pulling from eventually just folded the header into their own code.
+8. Have a variable I need to see in the code that is private to some of the header code. Created a new member function inside the library (readModeData)with the purpose of returning the protected variable and used that instead.
+9. Comment out motor code to mess a bit more with magnetometer.
+10. first test with calibration. ~30 mG variation when still.
+
+
+
+
+
+
+
+
+
+
+
+Vision:
+Whackabolt with a screen display of an RVIZ marker giving direction and magnitude, glove frame

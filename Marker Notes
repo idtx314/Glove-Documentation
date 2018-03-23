@@ -1,0 +1,23 @@
+
+Found an easy way to establish a world frame
+rosrun tf static_transform_publisher 0 0 0 0 0 0 1 map base_link 10
+
+And maybe
+rosrun rviz rviz -f base_link
+
+Was able to get the basic shapes tutorial working using the tf publisher with the right link name my_frame
+
+Also have my marker script from last quarter Jarvis' class working.
+
+Got arduino_publisher script publishing data. Three issues in order of frequency
+1. publish a set of world coordinates so that rviz understand space:
+    rosrun tf static_transform_publisher 0 0 0 0 0 0 1 map base_link 10
+
+2. Arrow must have color.a > 0 to be visible. Setting .r, .g, and/or .b to > 0 also helps, the arrow will be black otherwise.
+
+3. Have to provide a time stamp. This seems to contradict some of the advice online. Do not use rospy.Time() to set the timestamp to zero. This will not be read as valid by the version of the programs I'm using.
+    msg.header.stamp = rospy.Time.now()
+
+4. Don't forget to add a marker object so that rosrun rviz rviz -f base_link is actually looking for marker messages.
+
+Calibration using the compass on my phone suggests that if you align the IMU magnetometer axes with the axes of a frame in Rviz, the sensed flux lines do point in the correct direction.

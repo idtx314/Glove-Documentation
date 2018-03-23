@@ -1,0 +1,12 @@
+Looking into arduino RVIZ to determine difficulty
+
+Rates as potentially easy (one source)
+Something about "Firmata Protocol" and a "Pymata" client that allows firmata to be used from Python
+
+The Firmata Protocol is a communications protocol for linking a microcontroller with software on a computer.
+
+Found 2 different packages of interest ros-kinetic-rosserial-python and -arduino. Still looking at examples and search results.
+
+There is a comm protocol called "ROS Serial" implemented as the metapackage "rosserial" that encodes and decodes ROS serial messages for UART communication. Using this we can "Publish and subscribe to Arduino like a ROS node over UART".
+
+The rosserial-arduino client package "helps create a client library of the Arduino IDE".
